@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ödeme - AYBARS</title>
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- ESKİ TASARIM (KORUNAN STİLLER) --- */
+        body {
+            background-color: #fcfcfc;
+        }
+
+        .checkout-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 40px;
+        }
+
+        .form-section {
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        }
+
+        .form-section h3 {
+            margin-bottom: 30px;
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+            color: #222;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #555;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            transition: 0.3s;
+            background-color: #fafafa;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            border-color: #403f2b;
+            background-color: #fff;
+            outline: none;
+        }
+
+        /* Sipariş Özeti Kutusu */
+        .order-summary {
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+            height: fit-content;
+            position: sticky;
+            top: 120px;
+        }
+
+        .order-summary h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .checkout-items-list {
+            margin-bottom: 25px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #666;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            font-size: 20px;
+            font-weight: 700;
+            color: #403f2b;
+        }
+
+        /* Kupon Alanı */
+        .coupon-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .btn-apply {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 0 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-apply:hover { background-color: #000; }
+
+        /* Siparişi Tamamla Butonu */
+        .btn-checkout {
+            width: 100%;
+            background-color: #403f2b;
+            color: white;
+            padding: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 25px;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-checkout:hover {
+            background-color: #2d2c1e;
+            transform: translateY(-2px);
+        }
+
+        /* Mobilde Tek Sütun */
+        @media (max-width: 900px) {
+            .checkout-container { grid-template-columns: 1fr; }
+            .order-summary { position: static; }
+        }
+    </style>
+</head>
+<body>
+
+    <header></header> <div class="checkout-container">
+        
+        <div class="form-section">
+            <h3>Teslimat Bilgileri</h3>
+            
+            <form id="checkoutForm" onsubmit="siparisiTamamla(event)">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ad</label>
+                        <input type="text" id="ad" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Soyad</label>
+                        <input type="text" id="soyad" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>E-posta</label>
+                        <input type="email" id="email" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Telefon</label>
+                        <input type="tel" id="tel" class="form-input" placeholder="0 (5xx) xxx-xx-xx" maxlength="17" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Adres</label>
+                    <textarea id="adres" class="form-input" rows="3" placeholder="Mahalle, Cadde, Sokak, Kapı No" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>İl</label>
+                        <input type="text" id="il" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>İlçe</label>
+                        <input type="text" id="ilce" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Sipariş Notu (Opsiyonel)</label>
+                    <textarea id="not" class="form-input" rows="2" placeholder="Varsa kurye için özel notunuz..."></textarea>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="order-summary">
+            <h3>Sipariş Özeti</h3>
+            
+            <div id="checkout-items" class="checkout-items-list"></div>
+            
+            <div class="coupon-box">
+                <input type="text" id="kuponKodu" class="form-input" placeholder="KUPON KODU" style="text-transform:uppercase;">
+                <button type="button" class="btn-apply" onclick="kuponUygula()">UYGULA</button>
+            </div>
+            <div id="kuponMesaj" style="font-size:13px; margin-top:-20px; margin-bottom:20px; font-weight:600;"></div>
+
+            <div class="summary-item">
+                <span>Ara Toplam</span>
+                <span id="subTotal">₺0.00</span>
+            </div>
+            
+            <div class="summary-item" style="color:#2ecc71; display:none;" id="discountRow">
+                <span>İndirim</span>
+                <span id="discountAmount">-₺0.00</span>
+            </div>
+            
+            <div class="summary-item">
+                <span>Kargo</span>
+                <span style="color:#403f2b; font-weight:bold;">Ücretsiz</span>
+            </div>
+            
+            <div class="summary-total">
+                <span>TOPLAM</span>
+                <span id="grandTotal">₺0.00</span>
+            </div>
+
+            <button type="submit" form="checkoutForm" class="btn-checkout">SİPARİŞİ ONAYLA</button>
+        </div>
+
+    </div>
+
+    <footer></footer>
+
+    <script src="layout.js"></script>
+
+    <script>
+        // --- BACKEND URL ---
+        const API_URL = "/api/orders";
+
+        let sepet = JSON.parse(localStorage.getItem('aybarsSepet')) || [];
+        let aktifKupon = null;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            if (sepet.length === 0) {
+                alert("Sepetiniz boş! Alışverişe yönlendiriliyorsunuz.");
+                window.location.href = "index.html";
+                return;
+            }
+            ozetiYansit();
+            kullaniciBilgileriniDoldur();
+            telefonFormatiniAyarla();
+        });
+
+        // --- YENİ: SİPARİŞİ TAMAMLA VE BACKEND'E GÖNDER ---
+        async function siparisiTamamla(e) {
+            e.preventDefault();
+
+            const tel = document.getElementById('tel').value;
+            if(tel.length < 10) { alert("Lütfen telefon numarasını eksiksiz giriniz."); return; }
+
+            // Form verilerini al
+            const ad = document.getElementById('ad').value;
+            const soyad = document.getElementById('soyad').value;
+            const email = document.getElementById('email').value;
+            const adresText = document.getElementById('adres').value;
+            const il = document.getElementById('il').value;
+            const ilce = document.getElementById('ilce').value;
+            const not = document.getElementById('not').value;
+            
+            // Fiyatı sayıya çevir (₺ işaretini temizle)
+            const toplamString = document.getElementById('grandTotal').innerText;
+            const toplamSayi = parseFloat(toplamString.replace(/[^0-9.-]+/g,""));
+
+            // Backend'in beklediği formata uygun veri paketi hazırlıyoruz (Order.js modeline göre)
+            const yeniSiparis = {
+                musteriIsim: ad,
+                musteriSoyisim: soyad,
+                email: email,
+                telefon: tel,
+                adres: `${adresText} / ${ilce}`, // Adres ve ilçeyi birleştirdik
+                sehir: il,
+                
+                urunler: sepet.map(item => ({
+                urunId: item.id,
+                isim: item.isim,
+                adet: item.adet,
+                fiyat: item.fiyat,
+                secilenRenk: item.secilenRenk,
+                resim: item.resim // <--- BURAYI EKLEDİK
+                })),
+                
+                toplamTutar: toplamSayi,
+                siparisNotu: not
+            };
+
+            const btn = document.querySelector('.btn-checkout');
+            const orgText = btn.innerText;
+            btn.innerText = "İŞLENİYOR...";
+            btn.disabled = true;
+
+            try {
+                // Backend'e POST isteği atıyoruz
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(yeniSiparis)
+                });
+
+                if (response.ok) {
+                // 1. Backend'den gelen cevabı (oluşan siparişi) yakalıyoruz
+                const sonuc = await response.json(); 
+    
+                // 2. Sepeti temizliyoruz
+                localStorage.removeItem('aybarsSepet'); 
+    
+                // 3. Sipariş numarasını (MongoDB _id) linke ekleyerek yönlendiriyoruz
+                window.location.href = 'success.html?no=' + sonuc._id; 
+                
+                } else {
+                    const hata = await response.json();
+                    alert("Sipariş oluşturulamadı: " + (hata.message || "Bilinmeyen hata"));
+                    btn.innerText = orgText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error("Sipariş Hatası:", error);
+                alert("Sunucuya bağlanılamadı! Lütfen internet bağlantınızı kontrol edin.");
+                btn.innerText = orgText;
+                btn.disabled = false;
+            }
+        }
+
+        // --- DİĞER YARDIMCI FONKSİYONLAR (Aynen Kalıyor) ---
+        function ozetiYansit() {
+            const container = document.getElementById('checkout-items');
+            container.innerHTML = '';
+            let toplam = 0;
+
+            sepet.forEach(item => {
+                toplam += item.fiyat * item.adet;
+                container.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px; border-bottom:1px solid #f9f9f9; padding-bottom:8px;">
+                        <div>
+                            <span style="font-weight:600; display:block;">${item.isim}</span>
+                            <span style="color:#999; font-size:12px;">${item.secilenRenk ? item.secilenRenk : 'Standart'} | Adet: ${item.adet}</span>
+                        </div>
+                        <span style="font-weight:600;">₺${(item.fiyat * item.adet).toFixed(2)}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('subTotal').innerText = "₺" + toplam.toFixed(2);
+            
+            let odenecek = toplam;
+            if (aktifKupon) {
+                let indirimTutar = (toplam * aktifKupon.oran) / 100;
+                odenecek = toplam - indirimTutar;
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('discountAmount').innerText = "-₺" + indirimTutar.toFixed(2);
+            } else {
+                document.getElementById('discountRow').style.display = 'none';
+            }
+
+            document.getElementById('grandTotal').innerText = "₺" + odenecek.toFixed(2);
+        }
+
+        function telefonFormatiniAyarla() {
+            const telInput = document.getElementById('tel');
+            telInput.value = "0 ("; 
+            telInput.addEventListener('input', function(e) {
+                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+                if (!x[1] || x[1] !== '0') { e.target.value = '0 ('; return; }
+                e.target.value = !x[2] ? '0 (' : '0 (' + x[2] + (x[3] ? ') ' + x[3] : '') + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
+            });
+            telInput.addEventListener('blur', function(e) { if (e.target.value === '0 (' || e.target.value === '0') { e.target.value = '0 ('; } });
+        }
+
+        function kullaniciBilgileriniDoldur() {
+            const user = JSON.parse(localStorage.getItem('aybarsUser'));
+            if(user) {
+                if(document.getElementById('ad')) document.getElementById('ad').value = user.isim || '';
+                if(document.getElementById('soyad')) document.getElementById('soyad').value = user.soyisim || '';
+                if(document.getElementById('email')) document.getElementById('email').value = user.email || '';
+            }
+        }
+        
+        async function kuponUygula() {
+    const girilenKod = document.getElementById('kuponKodu').value.trim().toUpperCase();
+    const mesajKutusu = document.getElementById('kuponMesaj');
+    
+    if (!girilenKod) { mesajKutusu.innerText = "Lütfen kod giriniz."; return; }
+
+    try {
+        // Sunucudaki tüm kuponları soruyoruz
+        const res = await fetch("/api/coupons");
+        const tumKuponlar = await res.json();
+        
+        const bulunan = tumKuponlar.find(k => k.kod === girilenKod);
+
+        if (bulunan) {
+            // Süre kontrolü
+            if (bulunan.bitisTarihi && Date.now() > bulunan.bitisTarihi) {
+                mesajKutusu.innerText = "Bu kuponun süresi dolmuş!";
+                mesajKutusu.style.color = "red";
+                aktifKupon = null;
+            } else {
+                aktifKupon = bulunan;
+                mesajKutusu.innerText = `%${aktifKupon.oran} İndirim Uygulandı!`;
+                mesajKutusu.style.color = "green";
+            }
+        } else {
+            mesajKutusu.innerText = "Geçersiz Kupon Kodu.";
+            mesajKutusu.style.color = "red";
+            aktifKupon = null;
+        }
+        ozetiYansit(); // Fiyatı düşür
+    } catch (e) {
+        console.error(e);
+        mesajKutusu.innerText = "Bağlantı hatası.";
+    }
+}
+    </script>
+</body>
+</html>

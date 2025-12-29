@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Bulunamadı - AYBARS</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2663/2663529.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .error-container {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            background-color: #fefaf0;
+        }
+        
+        .error-code {
+            font-size: 120px;
+            font-family: 'Times New Roman', serif;
+            font-weight: bold;
+            color: #403f2b;
+            line-height: 1;
+            margin-bottom: 10px;
+            text-shadow: 4px 4px 0px rgba(64, 63, 43, 0.1);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .error-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .error-desc {
+            color: #666;
+            max-width: 500px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn-home {
+            padding: 15px 35px;
+            background-color: #403f2b;
+            color: #ffffff !important; /* Yazı rengi beyaz */
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* DÜZELTME: İkon rengini zorla beyaz yap */
+        .btn-home i {
+            color: #ffffff !important;
+        }
+
+        .btn-home:hover {
+            background-color: #2d2c1e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <header></header> <section class="error-container">
+        <div class="error-code">404</div>
+        <h2 class="error-title">Aradığınız Sayfayı Bulamadık</h2>
+        <p class="error-desc">
+            Gitmek istediğiniz sayfa kaldırılmış, adı değiştirilmiş veya geçici olarak kullanım dışı olabilir. Ancak vitrinimizde keşfedilecek çok şey var.
+        </p>
+        <a href="index.html" class="btn-home">
+            <i class="fas fa-home"></i> Ana Sayfaya Dön
+        </a>
+    </section>
+
+    <footer></footer> <div id="searchOverlay" class="search-overlay"><button class="close-search" onclick="toggleSearch()">&times;</button>
+        <div class="search-box-wrapper">
+            <input type="text" id="searchInput" class="search-input" placeholder="Ürün Ara..." oninput="urunAra()"></div>
+            <div id="searchResults" class="search-results"></div>
+        </div>
+        
+    <div id="mobileOverlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <nav id="mobileNav" class="mobile-nav"><button class="close-mobile-menu" onclick="toggleMobileMenu()">&times;</button><h3>Menü</h3><ul><li><a href="index.html">Ana Sayfa</a></li><li><a href="favorites.html">Favorilerim</a></li><li><a href="cart.html">Sepetim</a></li><li><a href="orders.html">Siparişlerim</a></li></ul><ul id="mobile-cat-list"></ul></nav>
+
+    <script src="layout.js"></script>
+</body>
+</html>

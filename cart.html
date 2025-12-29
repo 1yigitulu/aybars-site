@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sepetim - AYBARS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5997/5997108.png" type="image/x-icon">
+</head>
+<body>
+
+    <header></header>
+
+    <section class="cart-page-container">
+        <h1 class="page-title">Alışveriş Sepeti</h1>
+        <div id="cart-content-wrapper" class="cart-layout">
+            <div class="cart-items" id="cart-items-list"></div>
+            <div class="cart-summary">
+                <h3>Sipariş Özeti</h3>
+                <div class="summary-row"><span>Ara Toplam</span><span id="cart-subtotal">₺0.00</span></div>
+                <div class="summary-row"><span>Kargo</span><span>Ücretsiz</span></div>
+                <div class="divider"></div>
+                <div class="summary-row total"><span>Toplam</span><span id="cart-total">₺0.00</span></div>
+                <button class="btn-checkout" onclick="window.location.href='checkout.html'">ÖDEMEYE GEÇ</button>
+                <div class="secure-icon"><i class="fas fa-lock"></i> Güvenli Ödeme</div>
+            </div>
+        </div>
+        <div id="empty-cart-message" style="display: none; text-align: center; padding: 50px;">
+            <h2>Sepetiniz boş</h2><p>Henüz ürün eklemediniz.</p><a href="index.html" class="btn-continue">Alışverişe Başla</a>
+        </div>
+    </section>
+
+    <footer></footer>
+
+    <div id="searchOverlay" class="search-overlay"><button class="close-search" onclick="toggleSearch()">&times;</button>
+        <div class="search-box-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Ürün Ara..." oninput="urunAra()">
+        </div><div id="searchResults" class="search-results"></div>
+    </div>
+    
+    <div id="mobileOverlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <nav id="mobileNav" class="mobile-nav">
+    <button class="close-mobile-menu" onclick="toggleMobileMenu()">&times;</button>
+    <h3>Menü</h3>
+    <ul>
+        <li><a href="index.html">Ana Sayfa</a></li>
+        <li><a href="favorites.html">Favorilerim</a></li> <li><a href="cart.html">Sepetim</a></li>
+        <li><a href="orders.html">Siparişlerim</a></li>
+    </ul>
+    <h3>Koleksiyonlar</h3>
+    <ul id="mobile-cat-list"></ul>
+</nav>
+
+    <script src="layout.js"></script>
+
+    <script>
+        const API_URL_ORDERS = "/api/products";
+        let globalUrunVerileri = [];
+
+        document.addEventListener("DOMContentLoaded", async function() {
+            // 1. Backend'den En Güncel Verileri Çek
+            await verileriGuncelle();
+
+            // 2. Fiyatları Kontrol Et (Değiştiyse Sepeti Güncelle)
+            fiyatlariVeStoklariKontrolEt();
+            
+            // 3. Sepeti Ekrana Bas
+            renderCart();
+            
+            // 4. Layout fonksiyonları
+            if(typeof mobilMenuKategorileriDoldur === 'function') mobilMenuKategorileriDoldur();
+        });
+
+        // --- BACKEND VERİ ÇEKME ---
+        async function verileriGuncelle() {
+            try {
+                const response = await fetch(API_URL);
+                if(response.ok) {
+                    globalUrunVerileri = await response.json();
+                }
+            } catch (err) {
+                console.error("Veri çekme hatası:", err);
+            }
+        }
+
+        // --- FİYAT GÜNCELLEME VE KONTROL ---
+        function fiyatlariVeStoklariKontrolEt() {
+            let sepet = JSON.parse(localStorage.getItem('aybarsSepet')) || [];
+            let degisiklikVar = false;
+
+            sepet.forEach(sepetUrunu => {
+                // Backend verisinden bu ürünü bul (ID eşleşmesi)
+                const guncelUrun = globalUrunVerileri.find(u => u._id === sepetUrunu.id || u.id === sepetUrunu.id);
+                
+                if (guncelUrun) {
+                    // Fiyat değişmiş mi?
+                    if (guncelUrun.fiyat !== sepetUrunu.fiyat) {
+                        sepetUrunu.fiyat = guncelUrun.fiyat;
+                        degisiklikVar = true;
+                    }
+                    // (İsteğe bağlı: Burada sepetteki adet stoktan fazlaysa düşürülebilir)
+                }
+            });
+
+            if (degisiklikVar) {
+                localStorage.setItem('aybarsSepet', JSON.stringify(sepet));
+                if(typeof bildirimGoster === 'function') {
+                    setTimeout(() => { bildirimGoster("Fiyatlar güncellendi!", "error"); }, 500);
+                }
+            }
+        }
+
+        // --- SEPET LİSTELEME ---
+        function renderCart() {
+            const list = document.getElementById('cart-items-list');
+            const wrapper = document.getElementById('cart-content-wrapper');
+            const empty = document.getElementById('empty-cart-message');
+            let sepet = JSON.parse(localStorage.getItem('aybarsSepet')) || [];
+
+            if (sepet.length === 0) {
+                wrapper.style.display = 'none'; 
+                empty.style.display = 'block'; 
+                if(typeof sepetSayisiniGuncelle === "function") sepetSayisiniGuncelle();
+                return;
+            }
+            
+            wrapper.style.display = 'grid'; 
+            empty.style.display = 'none'; 
+            list.innerHTML = '';
+            
+            let total = 0;
+            sepet.forEach((u, i) => {
+                const rowTotal = u.fiyat * u.adet; 
+                total += rowTotal;
+                const renkBilgisi = u.secilenRenk ? `<br><span style="font-size:12px;color:#666;">Renk: ${u.secilenRenk}</span>` : '';
+                
+                list.innerHTML += `
+                    <div class="cart-item">
+                        <div class="cart-img"><img src="${u.resim}" alt="${u.isim}"></div>
+                        <div class="cart-details">
+                            <div class="cart-info"><h4>${u.isim}</h4><p class="price">₺${u.fiyat}</p>${renkBilgisi}</div>
+                            <div class="cart-actions">
+                                <div class="quantity-control">
+                                    <button onclick="adetGuncelle(${i}, -1)">-</button>
+                                    <input type="text" value="${u.adet}" readonly>
+                                    <button onclick="adetGuncelle(${i}, 1)">+</button>
+                                </div>
+                                <button class="btn-remove" onclick="urunuSil(${i})">Sil</button>
+                            </div>
+                        </div>
+                        <div class="cart-row-total">₺${rowTotal.toFixed(2)}</div>
+                    </div>`;
+            });
+            document.getElementById('cart-subtotal').innerText = "₺" + total.toFixed(2);
+            document.getElementById('cart-total').innerText = "₺" + total.toFixed(2);
+            
+            if(typeof sepetSayisiniGuncelle === "function") sepetSayisiniGuncelle();
+        }
+
+        // --- ADET GÜNCELLEME (STOK KONTROLLÜ) ---
+        function adetGuncelle(index, degisim) {
+            let sepet = JSON.parse(localStorage.getItem('aybarsSepet')) || [];
+            let urun = sepet[index];
+            
+            // Artırma işlemi yapılıyorsa STOK KONTROLÜ YAP
+            if (degisim > 0) {
+                // Backend'den çektiğimiz veriyi kullanıyoruz (localStorage değil)
+                const anaUrun = globalUrunVerileri.find(u => u._id === urun.id || u.id === urun.id);
+
+                if (anaUrun) {
+                    let stokLimiti = 0;
+
+                    // Renk stoğuna mı yoksa genel stoğa mı bakacağız?
+                    if (urun.secilenRenk && anaUrun.stokDetaylari && anaUrun.stokDetaylari[urun.secilenRenk] !== undefined) {
+                        stokLimiti = parseInt(anaUrun.stokDetaylari[urun.secilenRenk]);
+                    } else {
+                        stokLimiti = parseInt(anaUrun.stok) || 0;
+                    }
+
+                    // Kontrol
+                    if (urun.adet >= stokLimiti) {
+                        if(typeof bildirimGoster === 'function') {
+                            bildirimGoster(`Maksimum stoğa ulaştınız! (Kalan: ${stokLimiti})`, "error");
+                        } else {
+                            alert(`Maksimum stoğa ulaştınız!`);
+                        }
+                        return; // İşlemi iptal et
+                    }
+                }
+            }
+
+            // Stok sorunu yoksa devam et
+            urun.adet += degisim; 
+            
+            if (urun.adet < 1) {
+                sepet.splice(index, 1); // 1'den aşağı düşerse sil
+            }
+            
+            localStorage.setItem('aybarsSepet', JSON.stringify(sepet)); 
+            renderCart(); 
+        }
+
+        function urunuSil(i) {
+            let s = JSON.parse(localStorage.getItem('aybarsSepet')); 
+            s.splice(i, 1);
+            localStorage.setItem('aybarsSepet', JSON.stringify(s)); 
+            renderCart(); 
+        }
+        
+        document.addEventListener('keydown', e => { if(e.key==="Escape"){const o=document.getElementById('searchOverlay');if(o && o.style.display==='flex') toggleSearch();} });
+    </script>
+</body>
+</html>

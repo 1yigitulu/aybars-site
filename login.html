@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap / Üye Ol - Aybars Tasarım</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5997/5997108.png" type="image/x-icon">
+    <style>
+        /* Login Sayfası Özel CSS'leri */
+        body { background-color: #fcfcfc; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-container { width: 100%; max-width: 450px; background: white; padding: 40px; border: 1px solid #e0dfd5; box-shadow: 0 5px 20px rgba(0,0,0,0.03); text-align: center; }
+        .tabs { display: flex; justify-content: center; margin-bottom: 30px; border-bottom: 1px solid #eee; }
+        .tab-btn { background: none; border: none; padding: 10px 20px; font-family: 'Inter', sans-serif; font-size: 16px; cursor: pointer; color: #999; transition: 0.3s; position: relative; }
+        .tab-btn.active { color: #403f2b; font-weight: bold; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background-color: #403f2b; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { font-size: 12px; font-weight: 600; display: block; margin-bottom: 8px; color: #403f2b; }
+        input { width: 100%; padding: 12px; border: 1px solid #e0dfd5; background: #fafafa; font-family: 'Inter', sans-serif; font-size: 14px; outline: none; transition: 0.3s; }
+        input:focus { border-color: #403f2b; background: #fff; }
+        .btn-submit { width: 100%; padding: 14px; background-color: #403f2b; color: white; border: none; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-submit:hover { background-color: #2d2c1e; }
+        .btn-google { width: 100%; padding: 12px; margin-top: 15px; background-color: white; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font-size: 14px; color: #555; transition: 0.3s; }
+        .btn-google:hover { background-color: #f9f9f9; }
+        .divider { margin: 20px 0; font-size: 12px; color: #aaa; position: relative; }
+        .divider::before, .divider::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: #eee; }
+        .divider::before { left: 0; } .divider::after { right: 0; }
+        .back-home { display: block; margin-top: 20px; font-size: 12px; color: #999; text-decoration: underline; }
+        .form-box { display: none; } .form-box.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <a href="index.html" style="font-family: 'Times New Roman'; font-size: 24px; font-weight: bold; display: block; margin-bottom: 20px;">Aybars Tasarım</a>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="tabDegistir('login')">Giriş Yap</button>
+        <button class="tab-btn" onclick="tabDegistir('register')">Üye Ol</button>
+    </div>
+
+    <div id="login-form" class="form-box active">
+        <form onsubmit="girisYap(event)">
+            <div class="form-group"><label>E-Posta Adresi</label><input type="email" id="loginEmail" required placeholder="ornek@email.com"></div>
+            <div class="form-group"><label>Şifre</label><input type="password" id="loginPass" required placeholder="******"></div>
+            <button type="submit" class="btn-submit" id="btnLogin">GİRİŞ YAP</button>
+        </form>
+    </div>
+
+    <div id="register-form" class="form-box">
+        <form onsubmit="kayitOl(event)">
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex:1;"><label>İsim</label><input type="text" id="regName" required placeholder="Adınız"></div>
+                <div style="flex:1;"><label>Soyisim</label><input type="text" id="regSurname" required placeholder="Soyadınız"></div>
+            </div>
+            <div class="form-group"><label>E-Posta Adresi</label><input type="email" id="regEmail" required placeholder="ornek@email.com"></div>
+            <div class="form-group"><label>Şifre Oluştur</label><input type="password" id="regPass1" required placeholder="En az 6 karakter"></div>
+            <div class="form-group"><label>Şifrenizi Tekrar Giriniz</label><input type="password" id="regPass2" required placeholder="Şifrenizi doğrulayın"></div>
+            <button type="submit" class="btn-submit" id="btnRegister">ÜYE OL</button>
+        </form>
+    </div>
+
+    <div class="divider">VEYA</div>
+
+    <button type="button" class="btn-google" onclick="googleGirisUyari()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google"> 
+        Google ile Devam Et
+    </button>
+    
+    <a href="index.html" class="back-home">Alışverişe Geri Dön</a>
+</div>
+
+<script src="layout.js"></script>
+
+<script>
+    // --- API URL ---
+    const API_BASE = "/api";
+
+    // --- SEKME DEĞİŞTİRME ---
+    function tabDegistir(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('login-form').classList.remove('active');
+        document.getElementById('register-form').classList.remove('active');
+        document.getElementById(tabName + '-form').classList.add('active');
+    }
+
+    // --- YENİ: GOOGLE GİRİŞ UYARISI ---
+    function googleGirisUyari() {
+        if(typeof bildirimGoster === 'function') {
+            bildirimGoster("Google ile giriş özelliği yakında aktif olacak!", "warning");
+        } else {
+            alert("Google ile giriş özelliği yakında aktif olacak!");
+        }
+    }
+
+    // --- KAYIT OLMA FONKSİYONU ---
+    async function kayitOl(e) {
+        e.preventDefault();
+        
+        const isim = document.getElementById('regName').value;
+        const soyisim = document.getElementById('regSurname').value;
+        const email = document.getElementById('regEmail').value;
+        const pass1 = document.getElementById('regPass1').value;
+        const pass2 = document.getElementById('regPass2').value;
+        
+        const btn = document.getElementById('btnRegister');
+        const orgText = btn.innerText;
+
+        if(pass1 !== pass2) { bildirimGoster("Şifreler eşleşmiyor!", "error"); return; }
+        if(pass1.length < 6) { bildirimGoster("Şifre en az 6 karakter olmalıdır.", "error"); return; }
+
+        btn.innerText = "KAYDEDİLİYOR...";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`${API_BASE}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isim, soyisim, email, sifre: pass1 })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                bildirimGoster("Kayıt Başarılı! Şimdi giriş yapabilirsiniz.");
+                document.querySelectorAll('.tab-btn')[0].click(); // Giriş sekmesine at
+                // Formu temizle
+                document.getElementById('regName').value = '';
+                document.getElementById('regSurname').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPass1').value = '';
+                document.getElementById('regPass2').value = '';
+            } else {
+                bildirimGoster(data.message || "Bir hata oluştu.", "error");
+            }
+
+        } catch (error) {
+            console.error("Kayıt hatası:", error);
+            bildirimGoster("Sunucuya bağlanılamadı.", "error");
+        } finally {
+            btn.innerText = orgText;
+            btn.disabled = false;
+        }
+    }
+
+    // --- GİRİŞ YAPMA FONKSİYONU ---
+    async function girisYap(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPass').value;
+        
+        const btn = document.getElementById('btnLogin');
+        const orgText = btn.innerText;
+
+        btn.innerText = "GİRİŞ YAPILIYOR...";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`${API_BASE}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, sifre: pass })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                bildirimGoster("Hoşgeldin " + data.user.isim + "!");
+                localStorage.setItem('aybarsUser', JSON.stringify(data.user));
+                localStorage.setItem('isLoggedIn', 'true');
+                if (data.token) {
+                    localStorage.setItem('authToken', data.token);
+                }
+                setTimeout(() => { window.location.href = "index.html"; }, 1000);
+            } else {
+                bildirimGoster(data.message || "Giriş başarısız.", "error");
+            }
+
+        } catch (error) {
+            console.error("Giriş hatası:", error);
+            bildirimGoster("Sunucuya bağlanılamadı.", "error");
+        } finally {
+            btn.innerText = orgText;
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>

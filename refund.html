@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İade Koşulları - AYBARS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5997/5997108.png" type="image/x-icon">
+    <style>
+        .page-container { max-width: 800px; margin: 40px auto; padding: 0 20px; min-height:60vh; line-height: 1.8; color: #444; }
+        .page-title { text-align: center; font-family: 'Times New Roman', serif; margin-bottom: 40px; }
+        .static-content h3 { color: #403f2b; margin-top: 30px; margin-bottom: 10px; }
+        .static-content p { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <header></header>
+    <section class="page-container">
+        <h1 class="page-title">İade ve Değişim</h1>
+        <div class="static-content">
+            <h3>1. Cayma Hakkı</h3>
+            <p>Tüketici Kanunu gereğince, satın aldığınız ürünleri teslimat tarihinden itibaren 14 gün içerisinde, herhangi bir gerekçe göstermeksizin ve cezai şart ödemeksizin iade etme hakkına sahipsiniz.</p>
+            
+            <h3>2. İade Şartları</h3>
+            <p>İade edilecek ürünlerin orijinal ambalajında, hasarsız, kullanılmamış ve tekrar satılabilir özelliğini kaybetmemiş olması gerekmektedir. Kurulumu yapılmış demonte mobilyaların iadesi, ürün hasar görmeye açık hale geldiği için kabul edilememektedir.</p>
+            
+            <h3>3. İade Süreci</h3>
+            <p>İade talebinizi "İletişim" sayfasından veya müşteri hizmetlerimiz aracılığıyla bize iletmeniz gerekmektedir. Talebiniz onaylandıktan sonra ürünü anlaşmalı kargo firmamızla ücretsiz olarak gönderebilirsiniz.</p>
+            
+            <h3>4. Ücret İadesi</h3>
+            <p>İade edilen ürün tarafımıza ulaşıp kontrolleri yapıldıktan sonra, ürün bedeli 3-7 iş günü içerisinde ödeme yaptığınız karta veya hesaba iade edilir.</p>
+        </div>
+    </section>
+    <footer></footer>
+    <div id="searchOverlay" class="search-overlay"><button class="close-search" onclick="toggleSearch()">&times;</button><div class="search-box-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Ürün Ara..." oninput="urunAra()"><div id="searchResults" class="search-results"></div></div></div>
+    <div id="mobileOverlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <nav id="mobileNav" class="mobile-nav"><button class="close-mobile-menu" onclick="toggleMobileMenu()">&times;</button><h3>Menü</h3><ul><li><a href="index.html">Ana Sayfa</a></li><li><a href="favorites.html">Favorilerim</a></li><li><a href="cart.html">Sepetim</a></li><li><a href="orders.html">Siparişlerim</a></li></ul><ul id="mobile-cat-list"></ul></nav>
+    <script src="layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siparişiniz Alındı - AYBARS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5997/5997108.png" type="image/x-icon">
+    <style>
+        body { overflow-x: hidden; }
+
+        .success-container {
+            max-width: 600px; margin: 80px auto; padding: 40px 20px; text-align: center;
+            background: #fff; border-radius: 12px; border: 1px solid #e0dfd5; 
+            position: relative; z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        
+        .success-icon-wrapper {
+            width: 80px; height: 80px; background: #d4edda; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 25px;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .success-icon-wrapper i { font-size: 40px; color: #155724; }
+
+        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        h1 { font-family: 'Times New Roman', serif; color: #403f2b; margin-bottom: 15px; }
+        p { color: #666; font-size: 15px; line-height: 1.6; margin-bottom: 30px; }
+
+        .order-details-box {
+            background: #fafafa; border: 1px dashed #ccc; padding: 20px; border-radius: 8px;
+            display: inline-block; margin-bottom: 30px; min-width: 250px;
+        }
+        .odb-row { margin-bottom: 10px; }
+        .odb-row:last-child { margin-bottom: 0; }
+        .odb-label { display: block; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+        .odb-value { font-size: 20px; color: #333; font-weight: bold; letter-spacing: 1px; }
+        .odb-sub { font-size: 15px; color: #555; font-weight: 600; margin-top: 5px; }
+
+        .btn-group { display: flex; gap: 15px; justify-content: center; }
+        .btn-primary { background: #403f2b; color: white; padding: 12px 25px; border-radius: 4px; text-decoration: none; font-weight: bold; transition:0.3s; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-outline { border: 1px solid #403f2b; color: #403f2b; padding: 12px 25px; border-radius: 4px; text-decoration: none; font-weight: bold; transition:0.3s; }
+        .btn-outline:hover { background: #f9f9f9; }
+
+        #confetti-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 999; overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute; top: -10px; width: 10px; height: 10px;
+            background-color: #f2d74e;
+            animation: confetti-fall linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header></header>
+
+    <div id="confetti-wrapper"></div>
+
+    <div class="success-container">
+        <div class="success-icon-wrapper"><i class="fas fa-check"></i></div>
+        
+        <h1>Teşekkürler! Siparişiniz Alındı.</h1>
+        <p>Siparişiniz başarıyla oluşturuldu ve hazırlık sürecine alındı.<br>Detayları aşağıda bulabilir veya e-posta kutunuzu kontrol edebilirsiniz.</p>
+        
+        <div class="order-details-box">
+            <div class="odb-row">
+                <span class="odb-label">Sipariş Numaranız</span>
+                <div class="odb-value" id="orderNoDisplay">#YÜKLENİYOR...</div>
+            </div>
+            <div class="odb-row" id="amountRow" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:15px;">
+                <span class="odb-label">Toplam Tutar</span>
+                <div class="odb-sub" id="orderAmountDisplay"></div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <a href="orders.html" class="btn-primary">Siparişlerim</a>
+            <a href="index.html" class="btn-outline">Alışverişe Dön</a>
+        </div>
+    </div>
+
+    <footer></footer>
+
+    <div id="searchOverlay" class="search-overlay"><button class="close-search" onclick="toggleSearch()">&times;</button><div class="search-box-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Ürün Ara..." oninput="urunAra()"><div id="searchResults" class="search-results"></div></div></div>
+    <div id="mobileOverlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <nav id="mobileNav" class="mobile-nav"><button class="close-mobile-menu" onclick="toggleMobileMenu()">&times;</button><h3>Menü</h3><ul><li><a href="index.html">Ana Sayfa</a></li><li><a href="favorites.html">Favorilerim</a></li><li><a href="cart.html">Sepetim</a></li><li><a href="orders.html">Siparişlerim</a></li></ul><ul id="mobile-cat-list"></ul></nav>
+
+    <script src="layout.js"></script>
+
+    <script>
+        const API_URL = "/api/orders";
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // URL'den ID'yi al
+            const params = new URLSearchParams(window.location.search);
+            const no = params.get('no');
+            
+            if(no) {
+                // 1. Önce ID'yi hemen göster (Bekletmemek için)
+                const kisaNo = no.slice(-6).toUpperCase();
+                document.getElementById('orderNoDisplay').innerText = "#" + kisaNo;
+                
+                // 2. Veritabanından detayları çek
+                siparisDetayiniGetir(no);
+            } else {
+                document.getElementById('orderNoDisplay').innerText = "#HATA";
+            }
+            
+            startConfetti();
+        });
+
+        async function siparisDetayiniGetir(siparisId) {
+            try {
+                // Tüm siparişleri çek (Gerçek projede sadece tek sipariş çekilmeli ama şimdilik yapımız bu)
+                const response = await fetch(API_URL);
+                if(response.ok) {
+                    const orders = await response.json();
+                    const myOrder = orders.find(o => o._id === siparisId);
+                    
+                    if(myOrder) {
+                        // Tutarı Göster
+                        const tutar = myOrder.toplamTutar.toFixed(2);
+                        const urunSayisi = myOrder.urunler.length;
+                        
+                        const amountDiv = document.getElementById('amountRow');
+                        const amountText = document.getElementById('orderAmountDisplay');
+                        
+                        amountDiv.style.display = 'block';
+                        amountText.innerHTML = `₺${tutar} <span style="font-weight:normal; font-size:13px; color:#777;">(${urunSayisi} Ürün)</span>`;
+                    }
+                }
+            } catch (err) {
+                console.log("Sipariş detayı çekilemedi:", err);
+                // Hata olsa bile sayfa çalışır, sadece tutar görünmez.
+            }
+        }
+
+        function startConfetti() {
+            const colors = ['#ffc107', '#28a745', '#007bff', '#dc3545', '#e83e8c', '#6f42c1'];
+            const wrapper = document.getElementById('confetti-wrapper');
+            for (let i = 0; i < 100; i++) {
+                const conf = document.createElement('div');
+                conf.classList.add('confetti');
+                conf.style.left = Math.random() * 100 + '%';
+                const duration = Math.random() * 3 + 2; 
+                conf.style.animationDuration = duration + 's';
+                conf.style.animationDelay = Math.random() * 2 + 's';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                const size = Math.random() * 8 + 6 + 'px';
+                conf.style.width = size; conf.style.height = size;
+                wrapper.appendChild(conf);
+            }
+        }
+    </script>
+</body>
+</html>

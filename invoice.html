@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fatura Görüntüle - AYBARS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- GENEL SAYFA STİLLERİ --- */
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 40px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            background-color: #fff;
+            font-size: 16px;
+            line-height: 24px;
+            color: #555;
+            position: relative;
+        }
+
+        /* --- BAŞLIK ALANI (HEADER) --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #403f2b;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header .logo h1 {
+            margin: 0;
+            font-family: 'Times New Roman', serif;
+            color: #403f2b;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 28px;
+        }
+
+        .header .invoice-details {
+            text-align: right;
+        }
+        
+        .header .invoice-details p {
+            margin: 2px 0;
+        }
+
+        /* --- BİLGİ KUTULARI (ALICI / SATICI) --- */
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            flex-wrap: nowrap;
+        }
+
+        .info-block {
+            width: 48%;
+        }
+
+        .info-block h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .company-info p { margin: 0 0 5px 0; }
+        .company-name { font-weight: bold; color: #333; text-transform: uppercase; margin-bottom: 8px !important; font-size: 15px; }
+        .company-address { white-space: pre-line; margin-bottom: 8px !important; color: #555; }
+        .company-contact { color: #555; }
+
+        /* --- TABLO TASARIMI --- */
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .invoice-table th {
+            text-align: left;
+            background-color: #f9f9f9 !important;
+            color: #403f2b;
+            padding: 12px 10px;
+            font-weight: bold;
+            border-bottom: 2px solid #ddd;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .invoice-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            vertical-align: middle; /* Resim gelince içerikleri ortala */
+        }
+
+        .invoice-table td.price-col {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* --- TOPLAM ALANI --- */
+        .total-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .total-box {
+            width: 300px;
+            text-align: right;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 14px;
+        }
+
+        .total-row.grand-total {
+            font-size: 20px;
+            font-weight: bold;
+            color: #403f2b;
+            border-top: 2px solid #403f2b;
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+
+        /* --- ALT BİLGİ VE BUTON --- */
+        .footer-note {
+            margin-top: 50px;
+            border-top: 1px dashed #ccc;
+            padding-top: 20px;
+            font-size: 13px;
+            color: #777;
+            line-height: 1.5;
+        }
+
+        .actions-bar {
+            max-width: 800px;
+            margin: 20px auto;
+            text-align: right;
+        }
+
+        .btn-print {
+            background-color: #403f2b;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 15px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        
+        .btn-print:hover {
+            background-color: #2d2c1e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        @media print {
+            @page { margin: 10mm; size: A4; }
+            body { background-color: #fff; margin: 0; padding: 0; }
+            .invoice-box { box-shadow: none; border: none; padding: 0; margin: 0; width: 100%; max-width: 100%; }
+            .actions-bar, .btn-print { display: none !important; }
+            .info-section { display: flex !important; flex-direction: row !important; justify-content: space-between !important; gap: 20px; }
+            .info-block { width: 48% !important; float: left; }
+            .invoice-table { clear: both; margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="actions-bar">
+        <button onclick="window.print()" class="btn-print">
+            <i class="fas fa-file-pdf"></i> PDF İndir / Yazdır
+        </button>
+    </div>
+
+    <div class="invoice-box" id="invoiceContent">
+        <p style="text-align:center; padding:50px; color:#888;">Fatura verileri yükleniyor...</p>
+    </div>
+
+    <script>
+        const API_URL = "/api/orders";
+
+        document.addEventListener("DOMContentLoaded", function() {
+            faturayiGetir();
+        });
+
+        async function faturayiGetir() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+            const container = document.getElementById('invoiceContent');
+
+            if (!orderId) {
+                container.innerHTML = '<h2 style="text-align:center; color:#d9534f; margin-top:50px;">Hata: Sipariş numarası bulunamadı.</h2>';
+                return;
+            }
+
+            try {
+                // Backend'den veriyi çek
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("Veri çekilemedi");
+                
+                const tumSiparisler = await response.json();
+                const siparis = tumSiparisler.find(s => s._id === orderId);
+
+                if (!siparis) {
+                    container.innerHTML = '<h2 style="text-align:center; color:#d9534f; margin-top:50px;">Bu numaraya ait sipariş kaydı bulunamadı.</h2>';
+                    return;
+                }
+
+                // Firma bilgileri
+                const defaultContact = {
+                    address: "AYBARS MERKEZ OFİS\nESKİŞEHİR, TÜRKİYE",
+                    phone: "+90 553 943 00 26",
+                    email: "destek@aybars.com"
+                };
+                const firmaBilgileri = JSON.parse(localStorage.getItem('aybars_contact')) || defaultContact;
+
+                // --- HESAPLAMALAR VE RESİM GÖSTERİMİ ---
+                let araToplam = 0;
+                let urunSatirlariHTML = '';
+
+                siparis.urunler.forEach(u => {
+                    const renk = u.secilenRenk ? `<br><small style="color:#888">Renk: ${u.secilenRenk}</small>` : '';
+                    const satirToplami = u.adet * parseFloat(u.fiyat);
+                    araToplam += satirToplami;
+                    
+                    // Yeni: Resim Kontrolü
+                    // Eğer veritabanında resim varsa onu kullan, yoksa placeholder
+                    const urunResmi = u.resim || 'https://via.placeholder.com/50?text=Urun';
+
+                    urunSatirlariHTML += `
+                        <tr>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:15px;">
+                                    <img src="${urunResmi}" style="width:50px; height:50px; object-fit:cover; border-radius:4px; border:1px solid #eee;">
+                                    <div>
+                                        <strong>${u.isim}</strong>
+                                        ${renk}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${u.adet}</td>
+                            <td class="price-col">₺${u.fiyat}</td>
+                            <td class="price-col"><strong>₺${satirToplami.toFixed(2)}</strong></td> 
+                        </tr>
+                    `;
+                });
+
+                let genelToplam = siparis.toplamTutar; 
+                let indirimTutari = araToplam - genelToplam;
+                if (indirimTutari < 0.1) indirimTutari = 0; 
+
+                let indirimSatiriHTML = '';
+                if (indirimTutari > 0) {
+                    indirimSatiriHTML = `
+                        <div class="total-row discount">
+                            <span>İndirim:</span>
+                            <span>-₺${indirimTutari.toFixed(2)}</span>
+                        </div>
+                    `;
+                }
+
+                const siparisTarihi = new Date(siparis.tarih).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const bugunTarihi = new Date().toLocaleDateString('tr-TR');
+                
+                let aliciBilgisiHTML = '';
+                if (siparis.adres) {
+                    aliciBilgisiHTML = `
+                        <p><strong>Sayın ${siparis.musteriIsim} ${siparis.musteriSoyisim}</strong></p>
+                        <p>${siparis.adres}</p>
+                        <p>${siparis.sehir}</p>
+                        <p>${siparis.telefon}</p>
+                        <p style="font-size:12px; color:#666;">${siparis.email}</p>
+                    `;
+                } else {
+                    aliciBilgisiHTML = `<p><strong>Sayın Müşteri</strong></p><p>${siparis.email}</p>`;
+                }
+
+                const kisaSiparisNo = siparis._id.slice(-6).toUpperCase();
+
+                // HTML Bas
+                container.innerHTML = `
+                    <div class="header">
+                        <div class="logo">
+                            <h1>AYBARS</h1>
+                            <span style="font-size:12px; color:#666; letter-spacing:1px;">MINIMALIST WOODEN FURNISHING</span>
+                        </div>
+                        <div class="invoice-details">
+                            <p><strong>Sipariş No:</strong> #${kisaSiparisNo}</p>
+                            <p><strong>Sipariş Tarihi:</strong> ${siparisTarihi}</p>
+                            <p><strong>Basım Tarihi:</strong> ${bugunTarihi}</p>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <div class="info-block company-info">
+                            <h3>Satıcı (Gönderen)</h3>
+                            <p class="company-name">AYBARS MOBİLYA A.Ş.</p>
+                            <p class="company-address">${firmaBilgileri.address}</p>
+                            <p class="company-contact">${firmaBilgileri.email} | ${firmaBilgileri.phone}</p>
+                        </div>
+                        
+                        <div class="info-block" style="text-align:right;">
+                            <h3>Alıcı (Sayın)</h3>
+                            <div style="font-size:14px; line-height:1.6;">
+                                ${aliciBilgisiHTML}
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th style="width:50%">Ürün / Hizmet</th>
+                                <th>Miktar</th>
+                                <th style="text-align:right">Birim Fiyat</th>
+                                <th style="text-align:right">Tutar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${urunSatirlariHTML}
+                        </tbody>
+                    </table>
+
+                    <div class="total-section">
+                        <div class="total-box">
+                            <div class="total-row">
+                                <span>Ara Toplam:</span>
+                                <span>₺${araToplam.toFixed(2)}</span>
+                            </div>
+                            ${indirimSatiriHTML}
+                            
+                            <div class="total-row grand-total">
+                                <span>GENEL TOPLAM:</span>
+                                <span>₺${genelToplam.toFixed(2)}</span>
+                            </div>
+                            <p style="font-size:12px; margin-top:10px; color:#999;">Fiyatlara KDV Dahildir.</p>
+                        </div>
+                    </div>
+
+                    <div class="footer-note">
+                        <p><strong>Not:</strong> Bu belge bilgilendirme amaçlıdır. E-Arşiv fatura niteliği taşımaz. Resmi faturanız e-posta adresinize gönderilmiştir.</p>
+                        <p>Aybars Mobilya'yı tercih ettiğiniz için teşekkür ederiz.</p>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error("Hata:", error);
+                container.innerHTML = '<h2 style="text-align:center; color:#d9534f; margin-top:50px;">Fatura yüklenirken bir hata oluştu.</h2>';
+            }
+        }
+    </script>
+</body>
+</html>

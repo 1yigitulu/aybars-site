@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sıkça Sorulan Sorular - AYBARS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5997/5997108.png" type="image/x-icon">
+    <style>
+        .page-container { max-width: 800px; margin: 40px auto; padding: 0 20px; min-height:60vh; }
+        .page-title { text-align: center; font-family: 'Times New Roman', serif; margin-bottom: 40px; }
+        details { background: #fff; margin-bottom: 15px; border: 1px solid #e0dfd5; border-radius: 8px; overflow: hidden; transition: all 0.3s ease; }
+        details[open] { border-color: #403f2b; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        summary { padding: 20px; cursor: pointer; font-weight: 600; background: #fff; list-style: none; display: flex; justify-content: space-between; align-items: center; color: #333; }
+        summary::-webkit-details-marker { display: none; }
+        summary::after { content: '\f078'; font-family: 'Font Awesome 6 Free'; font-weight: 900; font-size: 14px; color: #999; transition: transform 0.3s; }
+        details[open] summary::after { transform: rotate(180deg); color: #403f2b; }
+        .faq-content { padding: 0 20px 20px 20px; line-height: 1.6; color: #555; background: #fff; font-size: 15px; }
+    </style>
+</head>
+<body>
+    <header></header>
+    <section class="page-container">
+        <h1 class="page-title">Sıkça Sorulan Sorular</h1>
+        
+        <details open>
+            <summary>Kargo ücreti ne kadar?</summary>
+            <div class="faq-content">Tüm Türkiye'ye gönderimlerimiz ücretsizdir. Siparişlerinizde herhangi bir kargo ücreti talep edilmemektedir.</div>
+        </details>
+
+        <details>
+            <summary>Hangi kargo firması ile çalışıyorsunuz?</summary>
+            <div class="faq-content">Siparişleriniz genellikle Yurt içi Kargo veya Aras Kargo ile gönderilmektedir. Büyük mobilya siparişleri için özel lojistik firmaları ile çalışıyoruz.</div>
+        </details>
+
+        <details>
+            <summary>Ürünler demonte mi geliyor?</summary>
+            <div class="faq-content">Bazı ürünlerimiz (masa, sandalye vb.) demonte olarak gönderilmektedir. Kurulum şeması ve gerekli malzemeler paket içerisinde mevcuttur. Kurulumu oldukça basittir.</div>
+        </details>
+
+        <details>
+            <summary>İade ve değişim yapabilir miyim?</summary>
+            <div class="faq-content">Evet, ürünü teslim aldığınız tarihten itibaren 14 gün içerisinde koşulsuz iade edebilirsiniz. Detaylar için "İade Koşulları" sayfamızı inceleyebilirsiniz.</div>
+        </details>
+
+        <details>
+            <summary>Özel ölçü üretim yapıyor musunuz?</summary>
+            <div class="faq-content">Evet, bazı modellerimizde özel ölçü ve renk seçenekleri sunabiliyoruz. Talepleriniz için iletişim sayfasından veya WhatsApp hattımızdan bize ulaşabilirsiniz.</div>
+        </details>
+    </section>
+    <footer></footer>
+    <div id="searchOverlay" class="search-overlay"><button class="close-search" onclick="toggleSearch()">&times;</button><div class="search-box-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Ürün Ara..." oninput="urunAra()"><div id="searchResults" class="search-results"></div></div></div>
+    <div id="mobileOverlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <nav id="mobileNav" class="mobile-nav"><button class="close-mobile-menu" onclick="toggleMobileMenu()">&times;</button><h3>Menü</h3><ul><li><a href="index.html">Ana Sayfa</a></li><li><a href="favorites.html">Favorilerim</a></li><li><a href="cart.html">Sepetim</a></li><li><a href="orders.html">Siparişlerim</a></li></ul><ul id="mobile-cat-list"></ul></nav>
+    <script src="layout.js"></script>
+</body>
+</html>

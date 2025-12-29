@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorilerim - AYBARS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5997/5997108.png" type="image/x-icon">
+    <style>
+        .page-header {
+            background-color: #fafafa; padding: 40px 20px; text-align: center; margin-bottom: 40px; border-bottom: 1px solid #eee;
+        }
+        .page-header h1 { font-family: 'Times New Roman', serif; margin: 0; color: #222; }
+        .page-header p { color: #666; margin-top: 10px; font-size: 14px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+
+        /* Favori Grid Yapısı */
+        .fav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 30px;
+            align-items: start; 
+        }
+
+        /* Favori Kartı */
+        .fav-card {
+            background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden;
+            position: relative; transition: 0.3s;
+            height: auto; 
+        }
+        .fav-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+
+        .fav-img-box {
+            height: 260px; width: 100%; position: relative; overflow: hidden; background: #f9f9f9;
+        }
+        .fav-img-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .fav-info { padding: 15px 15px 15px; text-align: center; }
+        .fav-info h3 { font-size: 15px; margin: 0 0 5px; color: #333; font-weight: 600; }
+        .fav-info .price { color: #403f2b; font-weight: bold; font-size: 16px; margin-bottom: 12px; display: block; }
+
+        .btn-remove-fav {
+            position: absolute; top: 10px; right: 10px; width: 32px; height: 32px;
+            background: #fff; border-radius: 50%; border: none; color: #d9534f;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s; z-index: 5;
+        }
+        .btn-remove-fav:hover { background: #d9534f; color: #fff; }
+
+        .btn-move-cart {
+            width: 100%; padding: 12px; background: #403f2b; color: #fff; border: none;
+            border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.3s;
+            display: block; 
+        }
+        .btn-move-cart:hover { background: #2d2c1e; }
+
+        /* Boş Durum */
+        .empty-state { text-align: center; padding: 60px 20px; grid-column: 1 / -1; }
+        .empty-state i { font-size: 50px; color: #ddd; margin-bottom: 20px; }
+        .empty-state h3 { color: #555; }
+        .btn-outline { 
+            display: inline-block; margin-top: 20px; padding: 10px 25px; border: 1px solid #403f2b; 
+            color: #403f2b; text-decoration: none; border-radius: 4px; transition: 0.3s; 
+        }
+        .btn-outline:hover { background: #403f2b; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <header></header>
+
+    <div class="page-header">
+        <h1>Favorilerim</h1>
+        <p>Beğendiğiniz ürünler burada saklanıyor.</p>
+    </div>
+
+    <div class="container">
+        <div id="favList" class="fav-grid">
+            <p style="text-align:center; width:100%; grid-column:1/-1;">Yükleniyor...</p>
+        </div>
+    </div>
+
+    <footer></footer>
+
+    <div id="searchOverlay" class="search-overlay"><button class="close-search" onclick="toggleSearch()">&times;</button><div class="search-box-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Ürün Ara..." oninput="urunAra()"><div id="searchResults" class="search-results"></div></div></div>
+    <div id="mobileOverlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <nav id="mobileNav" class="mobile-nav"><button class="close-mobile-menu" onclick="toggleMobileMenu()">&times;</button><h3>Menü</h3><ul><li><a href="index.html">Ana Sayfa</a></li><li><a href="favorites.html">Favorilerim</a></li><li><a href="cart.html">Sepetim</a></li><li><a href="orders.html">Siparişlerim</a></li></ul><ul id="mobile-cat-list"></ul></nav>
+
+    <script src="layout.js"></script>
+
+    <script>
+        const API_URL = "/api/products";
+        let tumUrunler = [];
+
+        document.addEventListener("DOMContentLoaded", async function() {
+            // 1. Önce güncel ürün verilerini çek
+            await urunleriGetir();
+            // 2. Sonra favorileri ekrana bas
+            renderFavorites();
+        });
+
+        async function urunleriGetir() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("Bağlantı hatası");
+                tumUrunler = await response.json();
+            } catch (error) {
+                console.error("Favoriler yüklenirken hata:", error);
+                document.getElementById('favList').innerHTML = '<p style="text-align:center; color:red;">Ürün bilgileri güncellenemedi.</p>';
+            }
+        }
+
+        function renderFavorites() {
+            const container = document.getElementById('favList');
+            let favIds = JSON.parse(localStorage.getItem('aybarsFavoriler')) || [];
+
+            container.innerHTML = "";
+
+            if (favIds.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="far fa-heart"></i>
+                        <h3>Favori listeniz henüz boş.</h3>
+                        <p>Beğendiğiniz ürünleri kalp ikonuna tıklayarak buraya ekleyebilirsiniz.</p>
+                        <a href="index.html" class="btn-outline">Alışverişe Başla</a>
+                    </div>
+                `;
+                return;
+            }
+
+            // ID listesinden gerçek ürün objelerini bul (Backend ID'sine göre)
+            const favUrunler = tumUrunler.filter(u => favIds.includes(u._id) || favIds.includes(u.id));
+
+            if (favUrunler.length === 0) {
+                 // ID var ama ürün yoksa (ürün silinmiş olabilir), boş ekran göster
+                 container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="far fa-heart"></i>
+                        <h3>Favori listenizdeki ürünler satıştan kaldırılmış olabilir.</h3>
+                        <a href="index.html" class="btn-outline">Alışverişe Devam Et</a>
+                    </div>`;
+                 return;
+            }
+
+            favUrunler.forEach(urun => {
+                // Hangi ID türü varsa onu kullan (MongoDB _id öncelikli)
+                const id = urun._id || urun.id;
+                const img = urun.resim1 || 'https://via.placeholder.com/300x300';
+                
+                container.innerHTML += `
+                    <div class="fav-card">
+                        <button class="btn-remove-fav" onclick="favoridenCikar('${id}')" title="Kaldır">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <div class="fav-img-box" onclick="window.location.href='product.html?id=${id}'" style="cursor:pointer">
+                            <img src="${img}" alt="${urun.isim}">
+                        </div>
+                        <div class="fav-info">
+                            <h3>${urun.isim}</h3>
+                            <span class="price">₺${urun.fiyat}</span>
+                            <button class="btn-move-cart" onclick="sepeteEkleDirect('${id}')">SEPETE EKLE</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function favoridenCikar(id) {
+            let favIds = JSON.parse(localStorage.getItem('aybarsFavoriler')) || [];
+            // String karşılaştırması yaparak sil (Backend ID'leri stringdir)
+            favIds = favIds.filter(fId => fId != id); 
+            localStorage.setItem('aybarsFavoriler', JSON.stringify(favIds));
+            
+            renderFavorites();
+            if(typeof bildirimGoster === 'function') bildirimGoster("Favorilerden kaldırıldı.", "error");
+        }
+
+        function sepeteEkleDirect(id) {
+            const urun = tumUrunler.find(u => (u._id == id || u.id == id));
+            
+            if (urun) {
+                let sepet = JSON.parse(localStorage.getItem('aybarsSepet')) || [];
+                const mevcut = sepet.find(i => i.id == id);
+                
+                // Stok kontrolü (Basit)
+                const stok = parseInt(urun.stok) || 0;
+                
+                if(stok <= 0) {
+                    bildirimGoster("Üzgünüz, ürün stoğu tükenmiş.", "error");
+                    return;
+                }
+
+                if(mevcut) {
+                    if(mevcut.adet < stok) {
+                        mevcut.adet += 1;
+                        bildirimGoster("Sepetteki miktar arttırıldı.");
+                    } else {
+                        bildirimGoster("Stok yetersiz!", "error");
+                        return;
+                    }
+                } else {
+                    sepet.push({
+                        id: urun._id || urun.id,
+                        isim: urun.isim,
+                        fiyat: urun.fiyat,
+                        resim: urun.resim1,
+                        adet: 1,
+                        secilenRenk: null 
+                    });
+                    bildirimGoster("Ürün sepete eklendi!");
+                }
+                
+                localStorage.setItem('aybarsSepet', JSON.stringify(sepet));
+                if(typeof sepetSayisiniGuncelle === 'function') sepetSayisiniGuncelle(true);
+            }
+        }
+    </script>
+</body>
+</html>

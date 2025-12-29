@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hakkımızda - AYBARS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5997/5997108.png" type="image/x-icon">
+    <style>
+        .page-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; line-height: 1.8; color: #444; }
+        .page-title { text-align: center; font-family: 'Times New Roman', serif; font-size: 32px; margin-bottom: 40px; letter-spacing: 1px; }
+        .about-content { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+        .about-img img { width: 100%; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .about-text h3 { font-family: 'Times New Roman', serif; margin-bottom: 15px; font-size: 22px; color: #403f2b; }
+        .about-text p { margin-bottom: 20px; font-size: 15px; }
+        @media (max-width: 768px) { .about-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header></header>
+    <section class="page-container">
+        <h1 class="page-title">Hikayemiz</h1>
+        <div class="about-content">
+            <div class="about-img">
+                <img src="https://images.unsplash.com/photo-1617103996702-96ff29b1c467?q=80&w=1000&auto=format&fit=crop" alt="Aybars Atölye">
+            </div>
+            <div class="about-text">
+                <h3>Doğallığın Estetiği</h3>
+                <p>Aybars Tasarım olarak, 2020 yılından bu yana ahşabın sıcaklığını ve doğallığını modern yaşam alanlarına taşıyoruz. Minimalist tasarım anlayışımızla, evlerinize sadece mobilya değil, huzur ve estetik katmayı amaçlıyoruz.</p>
+                <p>Her bir parça, ustalarımızın elinde özenle şekilleniyor. Sürdürülebilir kaynaklardan elde edilen malzemeleri, geleneksel işçilik ve modern teknoloji ile harmanlayarak, yıllarca kullanabileceğiniz dayanıklı ürünler ortaya çıkarıyoruz.</p>
+                <p>Bizim için mobilya, bir eşyadan fazlasıdır; yaşam tarzınızın bir yansımasıdır.</p>
+            </div>
+        </div>
+    </section>
+    <footer></footer>
+    <div id="searchOverlay" class="search-overlay"><button class="close-search" onclick="toggleSearch()">&times;</button><div class="search-box-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Ürün Ara..." oninput="urunAra()"><div id="searchResults" class="search-results"></div></div></div>
+    <div id="mobileOverlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <nav id="mobileNav" class="mobile-nav"><button class="close-mobile-menu" onclick="toggleMobileMenu()">&times;</button><h3>Menü</h3><ul><li><a href="index.html">Ana Sayfa</a></li><li><a href="favorites.html">Favorilerim</a></li><li><a href="cart.html">Sepetim</a></li><li><a href="orders.html">Siparişlerim</a></li></ul><ul id="mobile-cat-list"></ul></nav>
+    <script src="layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ürün Detayı - AYBARS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5997/5997108.png" type="image/x-icon">
+    <style>
+        .product-detail-container { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 50px; }
+        
+        /* BREADCRUMB */
+        .breadcrumb { grid-column: 1 / -1; margin-bottom: 20px; font-size: 14px; color: #888; display: flex; align-items: center; gap: 8px; }
+        .breadcrumb a { color: #888; text-decoration: none; transition: 0.3s; }
+        .breadcrumb a:hover { color: #403f2b; }
+        .breadcrumb i { font-size: 10px; color: #ccc; }
+        .breadcrumb span { color: #333; font-weight: bold; }
+
+        /* GALERİ */
+        .product-gallery { display: flex; flex-direction: column; gap: 15px; }
+        
+        /* Ana Resim Wrapper */
+        .main-image-wrapper { position: relative; width: 100%; aspect-ratio: 1/1; background: #f9f9f9; border-radius: 4px; overflow: hidden; border: 1px solid #eee; }
+        .main-image { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: 0.3s; }
+        .main-image:hover { opacity: 0.9; }
+
+        /* GALERİ YÖN BUTONLARI */
+        .gallery-nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 45px; height: 45px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            color: #333; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            opacity: 0; 
+        }
+        .main-image-wrapper:hover .gallery-nav-btn { opacity: 1; }
+        .gallery-nav-btn:hover { background-color: #403f2b; color: white; border-color: #403f2b; }
+        .gallery-prev { left: 15px; }
+        .gallery-next { right: 15px; }
+
+        .thumbnails { display: flex; gap: 10px; overflow-x: auto; }
+        .thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer; opacity: 0.6; border: 1px solid transparent; transition: 0.3s; }
+        .thumb:hover, .thumb.active { opacity: 1; border-color: #403f2b; }
+
+        /* DETAYLAR */
+        .product-details h1 { font-family: 'Times New Roman', serif; font-size: 32px; margin-bottom: 5px; color: #222; }
+        .rating-summary { font-size: 14px; color: #f39c12; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; }
+        .rating-summary span { color: #888; font-size: 13px; margin-left: 5px; }
+        .price { font-size: 24px; color: #403f2b; margin-bottom: 20px; font-weight: bold; }
+        .desc { font-size: 15px; line-height: 1.6; color: #555; margin-bottom: 30px; }
+        
+        /* RENK & STOK */
+        .color-selection { margin-bottom: 25px; }
+        .color-title { font-size: 13px; font-weight: bold; margin-bottom: 10px; display: block; }
+        .color-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        /* Renk Kutusu Tasarımı */
+        .color-box { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; position: relative; transition: transform 0.2s; }
+        .color-box:hover { transform: scale(1.1); }
+        .color-box.selected { border-color: #403f2b; box-shadow: 0 0 0 2px #fff inset; transform: scale(1.1); }
+        
+        .stock-warning { font-size: 13px; color: #d9534f; margin-bottom: 15px; display: none; }
+        .stock-ok { color: #5cb85c; }
+
+        /* AKSİYONLAR */
+        .actions { display: flex; gap: 15px; align-items: center; }
+        .qty-selector { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px; }
+        .qty-selector button { background: none; border: none; padding: 10px 15px; cursor: pointer; font-size: 16px; }
+        .qty-selector input { width: 40px; text-align: center; border: none; font-size: 16px; outline: none; }
+        .btn-add-cart { flex: 1; background-color: #403f2b; color: white; padding: 14px; border: none; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s; }
+        .btn-add-cart:hover { background-color: #2d2c1e; }
+        .btn-add-cart:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn-fav-detail { width: 48px; height: 48px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; font-size: 18px; color: #ccc; transition: 0.3s; }
+        .btn-fav-detail.active { color: #e74c3c; border-color: #e74c3c; }
+
+        /* YORUM ALANI */
+        .reviews-section { grid-column: 1 / -1; margin-top: 50px; border-top: 1px solid #eee; padding-top: 40px; }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .review-header h3 { font-family: 'Times New Roman', serif; font-size: 24px; margin: 0; }
+        .btn-write-review { background: #403f2b; color: #fff; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-size: 14px; }
+        
+        .review-form { display: none; background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; animation: fadeIn 0.3s; }
+        .review-form input, .review-form textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        .star-rating-input { margin-bottom: 15px; font-size: 20px; color: #ddd; cursor: pointer; display: inline-block; }
+        .star-rating-input i:hover, .star-rating-input i.active { color: #f39c12; }
+        
+        .review-list { display: flex; flex-direction: column; gap: 20px; }
+        .review-item { border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .review-item:last-child { border-bottom: none; }
+        .r-top { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .r-user { font-weight: bold; font-size: 14px; color: #333; }
+        .r-date { font-size: 12px; color: #999; }
+        .r-stars { color: #f39c12; font-size: 12px; margin-bottom: 8px; }
+        .r-text { font-size: 14px; color: #555; line-height: 1.5; }
+        .no-reviews { text-align: center; color: #999; padding: 20px; }
+
+        /* LIGHTBOX */
+        .lightbox-modal { display: none; position: fixed; z-index: 20000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); overflow: hidden; align-items: center; justify-content: center; }
+        .lightbox-content { max-width: 95%; max-height: 90vh; object-fit: contain; animation: zoomIn 0.3s; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .lightbox-close { position: absolute; top: 20px; right: 30px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; z-index: 20001; background: rgba(0,0,0,0.5); width: 50px; height: 50px; text-align: center; line-height: 50px; border-radius: 50%; }
+        
+        /* Lightbox Yön Butonları */
+        .lightbox-nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 60px; height: 60px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; z-index: 20002; transition: all 0.3s ease;
+        }
+        .lightbox-nav-btn:hover { background-color: #403f2b; border-color: #403f2b; color: white; }
+        .lightbox-prev { left: 30px; }
+        .lightbox-next { right: 30px; }
+
+        @keyframes zoomIn { from {transform:scale(0.8); opacity:0;} to {transform:scale(1); opacity:1;} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+        @media (max-width: 768px) { .product-detail-container { grid-template-columns: 1fr; gap: 30px; } .lightbox-content { width: 100%; } }
+        
+        /* Renk Sınıfları */
+        .bg-beyaz { background-color: #ffffff; border:1px solid #ccc; } .bg-siyah { background-color: #000000; } .bg-antrasit { background-color: #383e42; } .bg-krem { background-color: #fffdd0; } .bg-gri { background-color: #808080; } .bg-mavi { background-color: #0000ff; } .bg-yesil { background-color: #008000; } .bg-kahverengi { background-color: #a52a2a; } .bg-kirmizi { background-color: #ff0000; } .bg-sari { background-color: #ffff00; } .bg-bej { background-color: #f5f5dc; } .bg-lacivert { background-color: #000080; } .bg-turuncu { background-color: #FFA500; } .bg-mor { background-color: #800080; } .bg-pembe { background-color: #FFC0CB; } .bg-turkuaz { background-color: #40E0D0; } .bg-bordo { background-color: #800020; }
+
+        /* BENZER ÜRÜNLER (MODERN & YUMUŞAK TASARIM) */
+        .similar-section { max-width: 1200px; margin: 80px auto; padding: 0 20px; border-top: 1px solid #f0f0f0; padding-top: 50px; }
+        .similar-title { font-family: 'Times New Roman', serif; font-size: 28px; margin-bottom: 30px; color: #222; text-align: center; letter-spacing: 0.5px; }
+        .similar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; }
+        .sim-card { border: none; border-radius: 12px; overflow: hidden; background: #fff; transition: all 0.3s ease; text-decoration: none; color: inherit; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; }
+        .sim-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+        .sim-img-wrapper { width: 100%; aspect-ratio: 1/1; background: #f8f8f8; position: relative; overflow: hidden; }
+        .sim-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .sim-card:hover .sim-img-wrapper img { transform: scale(1.05); }
+        .sim-info { padding: 18px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .sim-name { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500; margin-bottom: 8px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sim-price { font-size: 16px; color: #403f2b; font-weight: bold; }
+        @media (max-width: 768px) { .similar-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; } .sim-info { padding: 12px; } }
+    </style>
+</head>
+<body>
+
+    <header></header>
+
+    <div id="imgLightbox" class="lightbox-modal" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <button class="lightbox-nav-btn lightbox-prev" onclick="lightboxNav(-1, event)"><i class="fas fa-chevron-left"></i></button>
+        <img class="lightbox-content" id="lightboxImg">
+        <button class="lightbox-nav-btn lightbox-next" onclick="lightboxNav(1, event)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <section class="product-detail-container">
+        <div class="breadcrumb" id="breadcrumbArea"></div>
+
+        <div class="product-gallery">
+            <div class="main-image-wrapper">
+                <button class="gallery-nav-btn gallery-prev" onclick="resimYonuDegistir(-1, event)"><i class="fas fa-chevron-left"></i></button>
+                <img id="mainImg" class="main-image" src="" alt="Ürün Resmi" onclick="openLightbox()">
+                <button class="gallery-nav-btn gallery-next" onclick="resimYonuDegistir(1, event)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="thumbnails" id="thumbList"></div>
+        </div>
+
+        <div class="product-details">
+            <h1 id="pTitle">...</h1>
+            <div class="rating-summary" id="ratingSummary">
+                <i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                <span>(0 Yorum)</span>
+            </div>
+            <div class="price" id="pPrice">₺0.00</div>
+            <div class="desc" id="pDesc"></div>
+            
+            <div id="colorSection" class="color-selection" style="display:none;">
+                <span class="color-title">Renk Seçin: <span id="selectedColorName" style="font-weight:normal; color:#666;"></span></span>
+                <div class="color-options" id="colorOptions"></div>
+            </div>
+            
+            <div id="stockMsg" class="stock-warning"></div>
+            <div class="actions">
+                <div class="qty-selector"><button onclick="adetDegistir(-1)">-</button><input type="text" id="pQty" value="1" readonly><button onclick="adetDegistir(1)">+</button></div>
+                <button class="btn-add-cart" id="addToCartBtn" onclick="sepeteEkle()">SEPETE EKLE</button>
+                <button class="btn-fav-detail" id="favBtn" onclick="favoriIslemi()"><i class="fas fa-heart"></i></button>
+            </div>
+        </div>
+
+        <div class="reviews-section">
+            <div class="review-header">
+                <h3>Yorumlar ve Değerlendirmeler</h3>
+                <button class="btn-write-review" onclick="yorumFormuAc()">Yorum Yap</button>
+            </div>
+            <div id="reviewFormContainer" class="review-form">
+                <h4 style="margin-top:0;">Yorum Yaz</h4>
+                <div class="star-rating-input" id="starInput">
+                    <i class="fas fa-star" onclick="yildizSec(1)" onmouseover="yildizHover(1)"></i>
+                    <i class="fas fa-star" onclick="yildizSec(2)" onmouseover="yildizHover(2)"></i>
+                    <i class="fas fa-star" onclick="yildizSec(3)" onmouseover="yildizHover(3)"></i>
+                    <i class="fas fa-star" onclick="yildizSec(4)" onmouseover="yildizHover(4)"></i>
+                    <i class="fas fa-star" onclick="yildizSec(5)" onmouseover="yildizHover(5)"></i>
+                    <span style="font-size:14px; color:#666; margin-left:10px;" id="starText">Puan Verin</span>
+                </div>
+                <input type="text" id="revName" placeholder="Adınız Soyadınız">
+                <textarea id="revText" rows="4" placeholder="Ürün hakkındaki düşünceleriniz..."></textarea>
+                <div style="text-align:right;">
+                    <button type="button" onclick="yorumFormuKapat()" style="padding:10px 15px; border:none; background:#eee; cursor:pointer; border-radius:4px; margin-right:10px;">İptal</button>
+                    <button type="button" onclick="yorumGonder()" style="padding:10px 15px; border:none; background:#403f2b; color:#fff; cursor:pointer; border-radius:4px;">GÖNDER</button>
+                </div>
+            </div>
+            <div id="reviewList" class="review-list"></div>
+        </div>
+    </section>
+
+    <section class="similar-section" id="similarSection" style="display:none;">
+        <h2 class="similar-title">Bunları da Beğenebilirsiniz</h2>
+        <div class="similar-grid" id="similarWrapper"></div>
+    </section>
+
+    <footer></footer>
+
+    <div id="searchOverlay" class="search-overlay"><button class="close-search" onclick="toggleSearch()">&times;</button><div class="search-box-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Ürün Ara..." oninput="urunAra()"><div id="searchResults" class="search-results"></div></div></div>
+    <div id="mobileOverlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <nav id="mobileNav" class="mobile-nav"><button class="close-mobile-menu" onclick="toggleMobileMenu()">&times;</button><h3>Menü</h3><ul><li><a href="index.html">Ana Sayfa</a></li><li><a href="favorites.html">Favorilerim</a></li><li><a href="cart.html">Sepetim</a></li><li><a href="orders.html">Siparişlerim</a></li></ul><ul id="mobile-cat-list"></ul></nav>
+
+    <script src="layout.js"></script>
+
+    <script>
+        const API_URL = "/api";
+        
+        let currentProduct = null;
+        let selectedColor = null;
+        let currentStock = 0; 
+        let secilenPuan = 0;
+        
+        let aktifResimListesi = [];
+        let suankiResimIndexi = 0;
+        
+        // Benzer ürünler için tüm listeyi tutacak değişken
+        let globalTumUrunler = [];
+
+        document.addEventListener("DOMContentLoaded", async function() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            
+            if (!id) { 
+                document.querySelector('.product-detail-container').innerHTML = "<h2>Ürün bulunamadı.</h2>"; 
+                return; 
+            }
+
+            // --- YENİ: Verileri Backend'den Çek ---
+            try {
+                const response = await fetch(`${API_URL}/products`);
+                if(!response.ok) throw new Error("Veri çekilemedi");
+                
+                globalTumUrunler = await response.json();
+                
+                // Gelen veriyi (u._id) bizim kullandığımız (u.id) formatına uyumlu hale getiriyoruz
+                // ve aranan ID ile eşleşeni buluyoruz.
+                currentProduct = globalTumUrunler.find(u => u._id === id || u.id === id);
+
+                if (!currentProduct) { 
+                    document.querySelector('.product-detail-container').innerHTML = "<h2>Ürün bulunamadı veya silinmiş.</h2>"; 
+                    return; 
+                }
+
+                // Sayfayı Doldur
+                breadcrumbAyarla(); 
+                renderProductDetails(); 
+                yorumlariGetir(); // Yorumlar şimdilik localStorage'da kalsın (henüz backend yorum yok)
+                
+                if(typeof favKontrol === 'function') { 
+                    const isActive = favKontrol(currentProduct._id || currentProduct.id); 
+                    if(isActive) document.getElementById('favBtn').classList.add('active'); 
+                }
+                
+                benzerUrunleriGetir(currentProduct.kategori, currentProduct._id || currentProduct.id);
+
+            } catch (error) {
+                console.error("Hata:", error);
+                document.querySelector('.product-detail-container').innerHTML = "<h2>Sunucuya bağlanılamadı.</h2>";
+            }
+        });
+
+        // --- GALERİ NAVİGASYON ---
+        function resimYonuDegistir(yon, e) {
+            if(e) e.stopPropagation();
+            if(aktifResimListesi.length <= 1) return;
+            suankiResimIndexi += yon;
+            if(suankiResimIndexi >= aktifResimListesi.length) suankiResimIndexi = 0;
+            if(suankiResimIndexi < 0) suankiResimIndexi = aktifResimListesi.length - 1;
+            const yeniSrc = aktifResimListesi[suankiResimIndexi];
+            document.getElementById('mainImg').src = yeniSrc;
+            guncelleThumbActive();
+        }
+
+        // --- LIGHTBOX NAVİGASYON ---
+        function lightboxNav(yon, e) {
+            if(e) e.stopPropagation();
+            if(aktifResimListesi.length <= 1) return;
+            suankiResimIndexi += yon;
+            if(suankiResimIndexi >= aktifResimListesi.length) suankiResimIndexi = 0;
+            if(suankiResimIndexi < 0) suankiResimIndexi = aktifResimListesi.length - 1;
+            const yeniSrc = aktifResimListesi[suankiResimIndexi];
+            document.getElementById('lightboxImg').src = yeniSrc;
+            document.getElementById('mainImg').src = yeniSrc;
+            guncelleThumbActive();
+        }
+
+        function guncelleThumbActive() {
+            document.querySelectorAll('.thumb').forEach((t, i) => {
+                if(i === suankiResimIndexi) t.classList.add('active');
+                else t.classList.remove('active');
+            });
+        }
+
+        function openLightbox() {
+            const modal = document.getElementById('imgLightbox');
+            const img = document.getElementById('mainImg');
+            const modalImg = document.getElementById('lightboxImg');
+            modal.style.display = "flex"; 
+            modalImg.src = img.src;
+        }
+        function closeLightbox() { document.getElementById('imgLightbox').style.display = "none"; }
+
+        // --- BENZER ÜRÜNLER (Backend Verisi Kullanır) ---
+        function benzerUrunleriGetir(kategori, urunId) {
+            // globalTumUrunler zaten backend'den doldu
+            let benzerler = globalTumUrunler.filter(u => u.kategori === kategori && (u._id != urunId && u.id != urunId));
+            
+            if (benzerler.length > 0) {
+                benzerler.sort(() => 0.5 - Math.random());
+                benzerler = benzerler.slice(0, 4);
+                const wrapper = document.getElementById('similarWrapper');
+                wrapper.innerHTML = "";
+                benzerler.forEach(u => {
+                    const id = u._id || u.id;
+                    const resim = u.resim1 || 'https://via.placeholder.com/300';
+                    wrapper.innerHTML += `<a href="product.html?id=${id}" class="sim-card"><div class="sim-img-wrapper"><img src="${resim}" alt="${u.isim}"></div><div class="sim-info"><div class="sim-name">${u.isim}</div><div class="sim-price">₺${u.fiyat}</div></div></a>`;
+                });
+                document.getElementById('similarSection').style.display = 'block';
+            }
+        }
+
+        // --- ÜRÜN DETAY & VARYASYON ---
+        function renderProductDetails() {
+            document.title = currentProduct.isim + " - AYBARS"; 
+            document.getElementById('pTitle').innerText = currentProduct.isim; 
+            document.getElementById('pPrice').innerText = "₺" + currentProduct.fiyat; 
+            document.getElementById('pDesc').innerText = currentProduct.aciklama || "Açıklama bulunmuyor.";
+            
+            let imageList = []; 
+            if(currentProduct.resim1) imageList.push(currentProduct.resim1); 
+            if(currentProduct.resim2) imageList.push(currentProduct.resim2);
+            
+            const colorSec = document.getElementById('colorSection'); 
+            const colorOpt = document.getElementById('colorOptions'); 
+            const stoklar = currentProduct.stokDetaylari || {};
+            
+            // Renk Varyasyonları
+            if (stoklar && Object.keys(stoklar).length > 0) {
+                colorSec.style.display = 'block'; 
+                colorOpt.innerHTML = "";
+                Object.keys(stoklar).forEach((renk, index) => {
+                    let safeRenk = renk.toLowerCase().replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c').replace(/[^a-z0-9]/g,'-');
+                    const box = document.createElement('div'); 
+                    box.className = `color-box bg-${safeRenk}`; 
+                    box.title = renk; 
+                    box.onclick = () => renkSec(renk, box);
+                    if (index === 0) renkSec(renk, box); 
+                    colorOpt.appendChild(box);
+                });
+            } else { 
+                currentStock = parseInt(currentProduct.stok) || 0; 
+                resimleriYukle(imageList); 
+                stokKontrol(currentStock); 
+            }
+        }
+
+        function renkSec(renk, element) {
+            selectedColor = renk; 
+            document.getElementById('selectedColorName').innerText = renk;
+            document.querySelectorAll('.color-box').forEach(b => b.classList.remove('selected')); 
+            element.classList.add('selected');
+            
+            const renkDetaylari = currentProduct.renkDetaylari || {};
+            if (renkDetaylari[renk] && renkDetaylari[renk].length > 0) {
+                resimleriYukle(renkDetaylari[renk]);
+            } else { 
+                let defaultImgs = []; 
+                if(currentProduct.resim1) defaultImgs.push(currentProduct.resim1); 
+                if(currentProduct.resim2) defaultImgs.push(currentProduct.resim2); 
+                resimleriYukle(defaultImgs); 
+            }
+            const stoklar = currentProduct.stokDetaylari || {}; 
+            currentStock = parseInt(stoklar[renk]) || 0; 
+            stokKontrol(currentStock);
+        }
+
+        function resimleriYukle(resimDizisi) {
+            aktifResimListesi = resimDizisi; 
+            suankiResimIndexi = 0;
+            const main = document.getElementById('mainImg'); 
+            const thumbList = document.getElementById('thumbList');
+            
+            if (resimDizisi.length > 0) { 
+                main.src = resimDizisi[0]; 
+                thumbList.innerHTML = ""; 
+                resimDizisi.forEach((src, i) => { 
+                    thumbList.innerHTML += `<img src="${src}" class="thumb ${i===0?'active':''}" onclick="resimDegistir('${src}', this, ${i})">`; 
+                }); 
+            } else { 
+                main.src = "https://via.placeholder.com/500x500?text=Resim+Yok"; 
+                thumbList.innerHTML = ""; 
+                aktifResimListesi=[]; 
+            }
+        }
+
+        function resimDegistir(src, thumb, index) { 
+            document.getElementById('mainImg').src = src; 
+            suankiResimIndexi = index;
+            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active')); 
+            thumb.classList.add('active'); 
+        }
+
+        // --- STANDART FONKSİYONLAR (Yorum & Sepet - Şimdilik LocalStorage) ---
+        function yorumlariGetir() {
+            const reviews = JSON.parse(localStorage.getItem('aybarsYorumlar')) || [];
+            // ID eşleşmesi için hem backend _id hem de eski id kontrolü
+            const urunId = currentProduct._id || currentProduct.id;
+            const urunYorumlari = reviews.filter(r => r.urunId == urunId).reverse();
+            
+            const listDiv = document.getElementById('reviewList'); const summaryDiv = document.getElementById('ratingSummary');
+            let totalPuan = 0; urunYorumlari.forEach(r => totalPuan += r.puan);
+            let avg = urunYorumlari.length > 0 ? (totalPuan / urunYorumlari.length).toFixed(1) : 0;
+            let starsHTML = ''; for(let i=1; i<=5; i++) { if(i <= Math.round(avg)) starsHTML += '<i class="fas fa-star" style="color:#f39c12"></i>'; else starsHTML += '<i class="far fa-star" style="color:#f39c12"></i>'; }
+            summaryDiv.innerHTML = `${starsHTML} <span>(${urunYorumlari.length} Yorum)</span>`;
+            if(urunYorumlari.length === 0) { listDiv.innerHTML = `<div class="no-reviews">Bu ürüne henüz yorum yapılmamış. İlk yorumu siz yapın!</div>`; return; }
+            listDiv.innerHTML = "";
+            urunYorumlari.forEach(r => {
+                let userStars = ''; for(let i=1; i<=5; i++) { if(i <= r.puan) userStars += '<i class="fas fa-star"></i>'; else userStars += '<i class="far fa-star"></i>'; }
+                listDiv.innerHTML += `<div class="review-item"><div class="r-top"><span class="r-user">${r.kullaniciAd}</span><span class="r-date">${r.tarih}</span></div><div class="r-stars">${userStars}</div><div class="r-text">${r.yorum}</div></div>`;
+            });
+        }
+        function yorumFormuAc() { const user = JSON.parse(localStorage.getItem('aybarsUser')); if(user) document.getElementById('revName').value = user.isim + ' ' + user.soyisim; document.getElementById('reviewFormContainer').style.display = 'block'; }
+        function yorumFormuKapat() { document.getElementById('reviewFormContainer').style.display = 'none'; }
+        function yildizSec(puan) { secilenPuan = puan; yildizGorselGuncelle(puan); document.getElementById('starText').innerText = puan + " Yıldız"; }
+        function yildizHover(puan) { yildizGorselGuncelle(puan); }
+        function yildizGorselGuncelle(puan) { const stars = document.querySelectorAll('#starInput i'); stars.forEach((s, i) => { if(i < puan) s.classList.add('active'); else if(i >= secilenPuan) s.classList.remove('active'); }); }
+        document.getElementById('starInput').addEventListener('mouseleave', function(){ yildizGorselGuncelle(secilenPuan); });
+        
+        function yorumGonder() {
+            const ad = document.getElementById('revName').value; const metin = document.getElementById('revText').value;
+            if(secilenPuan === 0) { bildirimGoster("Lütfen puan verin.", "error"); return; }
+            if(!ad || !metin) { bildirimGoster("Lütfen tüm alanları doldurun.", "error"); return; }
+            
+            const urunId = currentProduct._id || currentProduct.id;
+            const yeniYorum = { id: Date.now(), urunId: urunId, kullaniciAd: ad, puan: secilenPuan, yorum: metin, tarih: new Date().toLocaleDateString('tr-TR') };
+            
+            const allReviews = JSON.parse(localStorage.getItem('aybarsYorumlar')) || [];
+            allReviews.push(yeniYorum); localStorage.setItem('aybarsYorumlar', JSON.stringify(allReviews));
+            bildirimGoster("Yorumunuz yayınlandı!"); document.getElementById('revText').value = ""; secilenPuan = 0; yildizGorselGuncelle(0); yorumFormuKapat(); yorumlariGetir();
+        }
+        
+        function breadcrumbAyarla() {
+            const breadDiv = document.getElementById('breadcrumbArea');
+            const kategoriler = JSON.parse(localStorage.getItem('aybarsKategoriler')) || [];
+            const kat = kategoriler.find(k => k.id === currentProduct.kategori);
+            const katAd = kat ? kat.ad : 'Kategori'; const katLink = kat ? `index.html?kategori=${kat.id}` : '#';
+            breadDiv.innerHTML = `<a href="index.html">Anasayfa</a> <i class="fas fa-chevron-right"></i> <a href="${katLink}">${katAd}</a> <i class="fas fa-chevron-right"></i> <span>${currentProduct.isim}</span>`;
+        }
+        
+        function stokKontrol(stokSayisi) {
+            const msg = document.getElementById('stockMsg'); const btn = document.getElementById('addToCartBtn'); const qtyInp = document.getElementById('pQty'); msg.style.display = 'block';
+            if (stokSayisi <= 0) { msg.innerHTML = '<i class="fas fa-times-circle"></i> Bu ürün/seçenek tükenmiştir.'; msg.className = 'stock-warning'; btn.disabled = true; btn.innerText = "TÜKENDİ"; qtyInp.value = 0; }
+            else if (stokSayisi < 5) { msg.innerHTML = `<i class="fas fa-exclamation-circle"></i> Stoklar tükeniyor! Son ${stokSayisi} ürün.`; msg.className = 'stock-warning'; btn.disabled = false; btn.innerText = "SEPETE EKLE"; if(parseInt(qtyInp.value) > stokSayisi) qtyInp.value = stokSayisi; }
+            else { msg.innerHTML = '<i class="fas fa-check-circle"></i> Stokta var'; msg.className = 'stock-warning stock-ok'; btn.disabled = false; btn.innerText = "SEPETE EKLE"; }
+        }
+        
+        function adetDegistir(degisim) { const inp = document.getElementById('pQty'); let val = parseInt(inp.value) + degisim; if (val < 1) val = 1; if (val > currentStock && currentStock > 0) val = currentStock; if(currentStock > 0) inp.value = val; }
+        
+        function sepeteEkle() {
+            if(!currentProduct) return;
+            const adet = parseInt(document.getElementById('pQty').value);
+            if (currentStock <= 0 || adet <= 0) { bildirimGoster("Üzgünüz, stok yetersiz.", "error"); return; }
+            
+            let sepet = JSON.parse(localStorage.getItem('aybarsSepet')) || [];
+            
+            // Backend'den gelen ID (_id) ile sepet kontrolü
+            const urunId = currentProduct._id || currentProduct.id;
+            const mevcutIndex = sepet.findIndex(item => item.id === urunId && item.secilenRenk === selectedColor);
+            
+            if (mevcutIndex > -1) { 
+                if (sepet[mevcutIndex].adet + adet <= currentStock) { 
+                    sepet[mevcutIndex].adet += adet; bildirimGoster("Sepetteki miktar güncellendi."); 
+                } else { 
+                    bildirimGoster("Maksimum stok miktarına ulaşıldı!", "error"); return; 
+                } 
+            }
+            else { 
+                sepet.push({ 
+                    id: urunId, 
+                    isim: currentProduct.isim, 
+                    fiyat: currentProduct.fiyat, 
+                    resim: document.getElementById('mainImg').src, 
+                    adet: adet, 
+                    secilenRenk: selectedColor 
+                }); 
+                bildirimGoster("Ürün sepete eklendi!"); 
+            }
+            localStorage.setItem('aybarsSepet', JSON.stringify(sepet)); 
+            if(typeof sepetSayisiniGuncelle === 'function') sepetSayisiniGuncelle(true);
+        }
+        
+        function favoriIslemi() { 
+            if(!currentProduct) return; 
+            const urunId = currentProduct._id || currentProduct.id;
+            if(typeof favoriYonet === 'function') { 
+                const btn = document.getElementById('favBtn'); 
+                favoriYonet(urunId, btn); 
+            } 
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gizlilik Politikası - AYBARS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5997/5997108.png" type="image/x-icon">
+    <style>
+        .page-container { max-width: 800px; margin: 40px auto; padding: 0 20px; min-height:60vh; line-height: 1.8; color: #444; }
+        .page-title { text-align: center; font-family: 'Times New Roman', serif; margin-bottom: 40px; }
+        .static-content h3 { color: #403f2b; margin-top: 30px; margin-bottom: 10px; }
+        .static-content p { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <header></header>
+    <section class="page-container">
+        <h1 class="page-title">Gizlilik Politikası</h1>
+        <div class="static-content">
+            <p>Aybars Mobilya ("Şirket") olarak kişisel verilerinizin güvenliğine ve gizliliğine büyük önem veriyoruz. Bu politika, sitemizi kullanırken topladığımız verileri nasıl işlediğimizi açıklar.</p>
+            
+            <h3>1. Toplanan Veriler</h3>
+            <p>Sipariş oluşturma ve üyelik işlemleri sırasında; Ad, Soyad, Adres, Telefon, E-posta adresi gibi kimlik ve iletişim bilgilerinizi toplamaktayız.</p>
+            
+            <h3>2. Verilerin Kullanım Amacı</h3>
+            <p>Toplanan kişisel verileriniz; siparişlerinizi teslim etmek, fatura düzenlemek, iade süreçlerini yönetmek ve size özel kampanyalar sunmak amacıyla kullanılır.</p>
+            
+            <h3>3. Veri Paylaşımı</h3>
+            <p>Kişisel verileriniz, yasal zorunluluklar dışında veya siparişin teslimi için gerekli olan kargo firmaları haricinde üçüncü taraflarla asla paylaşılmaz.</p>
+            
+            <h3>4. Güvenlik</h3>
+            <p>Verileriniz, güvenli sunucularda saklanmakta olup yetkisiz erişimlere karşı gerekli tüm teknik ve idari tedbirler alınmıştır.</p>
+        </div>
+    </section>
+    <footer></footer>
+    <div id="searchOverlay" class="search-overlay"><button class="close-search" onclick="toggleSearch()">&times;</button><div class="search-box-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Ürün Ara..." oninput="urunAra()"><div id="searchResults" class="search-results"></div></div></div>
+    <div id="mobileOverlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <nav id="mobileNav" class="mobile-nav"><button class="close-mobile-menu" onclick="toggleMobileMenu()">&times;</button><h3>Menü</h3><ul><li><a href="index.html">Ana Sayfa</a></li><li><a href="favorites.html">Favorilerim</a></li><li><a href="cart.html">Sepetim</a></li><li><a href="orders.html">Siparişlerim</a></li></ul><ul id="mobile-cat-list"></ul></nav>
+    <script src="layout.js"></script>
+</body>
+</html>

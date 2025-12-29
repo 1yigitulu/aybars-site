@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hesabım - AYBARS</title>
+    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5997/5997108.png" type="image/x-icon">
+    <style>
+        .profile-container { max-width: 600px; margin: 40px auto; padding: 20px; min-height: 60vh; }
+        .page-title { text-align: center; font-family: 'Times New Roman', serif; margin-bottom: 30px; color: #333; }
+        
+        .account-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 40px; }
+        .account-card { background: #fff; border: 1px solid #e0dfd5; padding: 20px; text-align: center; border-radius: 8px; text-decoration: none; color: #403f2b; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .account-card:hover { border-color: #403f2b; background: #fafafa; transform: translateY(-2px); }
+        .account-card i { font-size: 24px; color: #403f2b; }
+        .account-card span { font-size: 14px; font-weight: 600; }
+
+        .profile-form-wrapper { background: #fff; border: 1px solid #e0dfd5; padding: 30px; border-radius: 8px; }
+        .form-section-title { font-size: 16px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #403f2b; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #555; font-size: 13px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box; transition: border-color 0.3s; font-family: 'Inter', sans-serif; }
+        .form-group input:focus, .form-group textarea:focus { border-color: #403f2b; outline: none; }
+        .form-group input:disabled { background-color: #f9f9f9; color: #999; cursor: not-allowed; }
+        
+        .btn-save { width: 100%; background-color: #403f2b; color: white; border: none; padding: 14px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 4px; transition: opacity 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-save:hover { opacity: 0.9; }
+        .success-message { display: none; background-color: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center; border: 1px solid #c3e6cb; }
+
+        @media (max-width: 480px) { .account-menu-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <header></header>
+
+    <section class="profile-container">
+        <h1 class="page-title">Hesabım</h1>
+        
+        <div class="account-menu-grid">
+            <a href="orders.html" class="account-card">
+                <i class="fas fa-box-open"></i><span>Siparişlerim</span>
+            </a>
+            <a href="favorites.html" class="account-card">
+                <i class="far fa-heart"></i><span>Favorilerim</span>
+            </a>
+            <a href="#" onclick="cikisYap()" class="account-card" style="border-color:#ffcccc; color:#d9534f;">
+                <i class="fas fa-sign-out-alt" style="color:#d9534f;"></i><span>Çıkış Yap</span>
+            </a>
+        </div>
+
+        <div class="profile-form-wrapper">
+            <div class="form-section-title"><i class="fas fa-user-edit"></i> Bilgilerimi Güncelle</div>
+            
+            <div id="msgBox" class="success-message">Bilgileriniz başarıyla güncellendi!</div>
+
+            <form id="profileForm" onsubmit="bilgileriKaydet(event)">
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Ad</label>
+                        <input type="text" id="inpIsim" required>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Soyad</label>
+                        <input type="text" id="inpSoyisim" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>E-Posta</label>
+                    <input type="email" id="inpEmail" disabled title="E-posta adresi değiştirilemez">
+                </div>
+
+                <div class="form-group">
+                    <label>Telefon</label>
+                    <input type="tel" id="inpTelefon" placeholder="05XX XXX XX XX">
+                </div>
+
+                <div class="form-group">
+                    <label>Adres</label>
+                    <textarea id="inpAdres" rows="3" placeholder="Teslimat ve fatura adresi..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-save" id="btnSave">KAYDET</button>
+            </form>
+        </div>
+    </section>
+
+    <footer></footer>
+
+    <div id="searchOverlay" class="search-overlay"><button class="close-search" onclick="toggleSearch()">&times;</button><div class="search-box-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Ürün Ara..." oninput="urunAra()"><div id="searchResults" class="search-results"></div></div></div>
+    <div id="mobileOverlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <nav id="mobileNav" class="mobile-nav"><button class="close-mobile-menu" onclick="toggleMobileMenu()">&times;</button><h3>Menü</h3><ul><li><a href="index.html">Ana Sayfa</a></li><li><a href="favorites.html">Favorilerim</a></li><li><a href="cart.html">Sepetim</a></li><li><a href="orders.html">Siparişlerim</a></li></ul><ul id="mobile-cat-list"></ul></nav>
+
+    <script src="layout.js"></script>
+
+    <script>
+        const API_URL = "/api";
+        let currentUserId = null;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            kullaniciVerileriniYukle();
+        });
+
+        function kullaniciVerileriniYukle() {
+            const user = JSON.parse(localStorage.getItem('aybarsUser'));
+            
+            if (!user) { 
+                window.location.href = 'login.html'; 
+                return;
+            }
+            
+            // Backend '_id' kullanır, localStorage 'id' veya '_id' olabilir.
+            currentUserId = user._id || user.id;
+
+            document.getElementById('inpIsim').value = user.isim || '';
+            document.getElementById('inpSoyisim').value = user.soyisim || '';
+            document.getElementById('inpEmail').value = user.email || '';
+            document.getElementById('inpTelefon').value = user.telefon || ''; 
+            document.getElementById('inpAdres').value = user.adres || '';     
+        }
+
+        async function bilgileriKaydet(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('btnSave');
+            const orgText = btn.innerText;
+            btn.innerText = "KAYDEDİLİYOR...";
+            btn.disabled = true;
+
+            // Formdaki EN GÜNCEL verileri al
+            const guncelVeri = {
+                isim: document.getElementById('inpIsim').value,
+                soyisim: document.getElementById('inpSoyisim').value,
+                telefon: document.getElementById('inpTelefon').value,
+                adres: document.getElementById('inpAdres').value
+            };
+
+            try {
+                // Veritabanına gönder
+                const response = await fetch(`${API_URL}/users/${currentUserId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(guncelVeri)
+                });
+
+                if (response.ok) {
+                    // ÇÖZÜM BURADA:
+                    // Backend'den dönen veriyi değil, formdaki GÜNCEL veriyi kaydediyoruz.
+                    let localUser = JSON.parse(localStorage.getItem('aybarsUser')) || {};
+                    
+                    localUser.isim = guncelVeri.isim;
+                    localUser.soyisim = guncelVeri.soyisim;
+                    localUser.telefon = guncelVeri.telefon;
+                    localUser.adres = guncelVeri.adres;
+                    // id ve email değişmediği için ellemiyoruz
+                    
+                    localStorage.setItem('aybarsUser', JSON.stringify(localUser));
+
+                    // Başarı Mesajı
+                    const msgBox = document.getElementById('msgBox');
+                    msgBox.style.display = 'block';
+                    setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
+                    
+                    // Header'daki ismi güncelle
+                    if(typeof girisKontroluYap === 'function') girisKontroluYap();
+                } else {
+                    alert("Güncelleme başarısız oldu.");
+                }
+            } catch (error) {
+                console.error("Hata:", error);
+                alert("Sunucuya bağlanılamadı.");
+            } finally {
+                btn.innerText = orgText;
+                btn.disabled = false;
+            }
+        }
+        
+        function cikisYap() {
+            if(confirm("Çıkış yapmak istediğinize emin misiniz?")) {
+                localStorage.removeItem('aybarsUser');
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('aybarsSepet');
+                window.location.href = "index.html";
+            }
+        }
+    </script>
+</body>
+</html>
